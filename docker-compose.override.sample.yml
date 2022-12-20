@@ -1,0 +1,16 @@
+version: "3"
+services:
+  laravel:
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    user: 1000:1000
+    environment:
+      XDG_CONFIG_HOME: /tmp
+
+  adminer:
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  node:
+    user: 1000:1000
+

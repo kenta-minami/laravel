@@ -1,0 +1,3 @@
+docker/db/data
+docker/nginx/ssl/server.crt
+docker/nginx/ssl/server.key
