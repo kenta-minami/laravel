@@ -11,7 +11,6 @@ class TodoListController extends Controller
     {
       $todo_lists = TodoList::all();
    
-    //  dd($todo_lists);
       return view('todo_list.index', ['todo_lists'=> $todo_lists]);
     }
 }
