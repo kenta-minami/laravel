@@ -32,6 +32,13 @@
                         <input
                             class="placeholder:italic placeholder:text-slate-400 block bg-white w-full border border-slate-300 rounded-md py-4 pl-4 shadow-sm focus:outline-none focus:border-sky-500 focus:ring-sky-500 focus:ring-1 sm:text-sm"
                             placeholder="洗濯物をする..." type="text" name="task_name" />
+                            @error('task_name')
+                            <div class="mt-3">
+                                <p class="text-red-500">
+                                    {{ $message }}
+                                </p>
+                            </div>
+                            @enderror
                     </label>
 
                     <button type="submit" class="mt-8 p-4 bg-slate-800 text-black w-full max-w-xs hover:bg-slate-900 transition-colors">
