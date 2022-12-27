@@ -2,7 +2,9 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TodoListController;
-
+use App\Http\Controllers\TaskController;
+ 
+Route::resource('tasks', TaskController::class);
 /*
 |--------------------------------------------------------------------------
 | Web Routes
