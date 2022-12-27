@@ -41,7 +41,7 @@
                             @enderror
                     </label>
 
-                    <button type="submit" class="mt-8 p-4 bg-slate-800 text-black w-full max-w-xs hover:bg-slate-900 transition-colors">
+                    <button type="submit" class="mt-8 p-4 bg-slate-800 text-white w-full max-w-xs hover:bg-slate-900 transition-colors">
                         追加する
                     </button>
                   </div>
@@ -79,8 +79,9 @@
                                                                 role="menuitem" tabindex="-1">
                                                                 @csrf
                                                                 @method('PUT')
+                                                                <input type="hidden" name="status" value="{{$item->status}}">
                                                                 <button type="submit"
-                                                                    class="bg-emerald-700 py-4 w-20 text-white md:hover:bg-emerald-800 transition-colors">完了</button>
+                                                                    class="bg-emerald-700 py-4 w-20 text-black md:hover:bg-emerald-800 transition-colors">完了</button>
                                                             </form>
                                                         </div>
                                                         <div>
@@ -88,7 +89,10 @@
                                                                 class="inline-block text-center py-4 w-20 underline underline-offset-2 text-sky-600 md:hover:bg-sky-100 transition-colors">編集</a>
                                                         </div>
                                                         <div>
-                                                            <form action="/tasks/{{ $item->id }}" method="post"
+
+                                                        <div>
+                                                            <form onsubmit="return deleteTask();"
+                                                                action="/tasks/{{ $item->id }}" method="post"
                                                                 class="inline-block text-gray-500 font-medium"
                                                                 role="menuitem" tabindex="-1">
                                                                 @csrf
@@ -96,6 +100,7 @@
                                                                 <button type="submit"
                                                                     class="py-4 w-20 md:hover:bg-slate-200 transition-colors">削除</button>
                                                             </form>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </td>
@@ -117,6 +122,15 @@
         </div>
     </div>
     </footer>
+    <script>
+        function deleteTask() {
+            if (confirm('本当に削除しますか？')) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+    </script>    
 </body>
 
 </html>
