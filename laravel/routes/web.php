@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TodoListController;
 use App\Http\Controllers\TaskController;
+use App\Http\Controllers\UNOfController;
  
 Route::resource('tasks', TaskController::class);
 /*
@@ -22,3 +23,6 @@ Route::get('/', function () {
 });
 
 Route::get('/list', [TodoListController::class, 'index']);
+
+Route::get('/uno', [UNOfController::class, 'index'])->name('uno.index');
+Route::post('/uno', [UNOfController::class, 'next'])->name('uno.next');
