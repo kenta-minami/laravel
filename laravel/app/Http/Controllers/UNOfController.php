@@ -991,7 +991,6 @@ class UNOfController extends Controller
         );
         return redirect()->route('uno.next', ['id' => $playCards[$key]['display'],'no'=>$key]);
         }
-        //Route::get('/uno',[unoController::class, 'uno']);
     }
     public function next(){
         echo "interval page";

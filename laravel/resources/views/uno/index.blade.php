@@ -44,28 +44,8 @@
 <?php if(!$nimaime && $wildflag!==1):?>
     <?php if($turn%2===0 && !(count($compCards) > 29) && $playscore <= 500):?>
         <a href="{{route('uno.index',['no'=>'draw'])}}">・・・☆draw</a><br>
-        <!-- <br>
-        <?php if(count($playCards) > 0 ):?><li><a href="{{route('uno.index',['id' => $playCards[0]['display'],'no'=>0],false)}}">1</a></li> <?php endif;?>
-        <?php if(count($playCards) > 1 ):?><li><a href="{{route('uno.index',['id' => $playCards[1]['display'],'no'=>1],false)}}">2</a></li> <?php endif;?>
-        <?php if(count($playCards) > 2 ):?><li><a href="{{route('uno.index',['id' => $playCards[2]['display'],'no'=>2],false)}}">3</a></li> <?php endif;?>
-        <?php if(count($playCards) > 3 ):?><li><a href="{{route('uno.index',['id' => $playCards[3]['display'],'no'=>3],false)}}">4</a></li> <?php endif;?>
-        <?php if(count($playCards) > 4 ):?><li><a href="{{route('uno.index',['id' => $playCards[4]['display'],'no'=>4],false)}}">5</a></li> <?php endif;?>
-        <?php if(count($playCards) > 5 ):?><li><a href="{{route('uno.index',['id' => $playCards[5]['display'],'no'=>5],false)}}">6</a></li> <?php endif;?>
-        <?php if(count($playCards) > 6 ):?><li><a href="{{route('uno.index',['id' => $playCards[6]['display'],'no'=>6],false)}}">7</a></li> <?php endif;?>
-        <?php if(count($playCards) > 7 ):?><li><a href="{{route('uno.index',['id' => $playCards[7]['display'],'no'=>7],false)}}">8</a></li> <?php endif;?>
-        <?php if(count($playCards) > 8 ):?><li><a href="{{route('uno.index',['id' => $playCards[8]['display'],'no'=>8],false)}}">9</a></li> <?php endif;?> -->
     <?php elseif($turn%2===1 && !(count($playCards) > 29) && $compscore <= 500):?>
         <a href="{{route('uno.index',['no'=>'draw'])}}">・・・☆draw</a><br>
-        <!-- <br>
-        <?php if(count($compCards) > 0 ):?><li><a href="{{route('uno.index',['id' => $compCards[0]['display'],'no'=>0],false)}}">1</a></li> <?php endif;?>
-        <?php if(count($compCards) > 1 ):?><li><a href="{{route('uno.index',['id' => $compCards[1]['display'],'no'=>1],false)}}">2</a></li> <?php endif;?>
-        <?php if(count($compCards) > 2 ):?><li><a href="{{route('uno.index',['id' => $compCards[2]['display'],'no'=>2],false)}}">3</a></li> <?php endif;?>
-        <?php if(count($compCards) > 3 ):?><li><a href="{{route('uno.index',['id' => $compCards[3]['display'],'no'=>3],false)}}">4</a></li> <?php endif;?>
-        <?php if(count($compCards) > 4 ):?><li><a href="{{route('uno.index',['id' => $compCards[4]['display'],'no'=>4],false)}}">5</a></li> <?php endif;?>
-        <?php if(count($compCards) > 5 ):?><li><a href="{{route('uno.index',['id' => $compCards[5]['display'],'no'=>5],false)}}">6</a></li> <?php endif;?>
-        <?php if(count($compCards) > 6 ):?><li><a href="{{route('uno.index',['id' => $compCards[6]['display'],'no'=>6],false)}}">7</a></li> <?php endif;?>
-        <?php if(count($compCards) > 7 ):?><li><a href="{{route('uno.index',['id' => $compCards[7]['display'],'no'=>7],false)}}">8</a></li> <?php endif;?>
-        <?php if(count($compCards) > 8 ):?><li><a href="{{route('uno.index',['id' => $compCards[8]['display'],'no'=>8],false)}}">9</a></li> <?php endif;?> -->
     <?php else:?>
         <?php if($turn%2===1){ echo "<br>Player1の負けです。<br>";} ?>
         <?php if($turn%2===0){ echo "<br>Player2の負けです。<br>";} ?>
