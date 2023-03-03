@@ -16,8 +16,8 @@ class UNOfController extends Controller
 
         $nummax = 29;  //数字カードの最大値
         $maisu = 17;   //手札初期配布枚数
-        $numcolor = 5; //出現する色の種類($numcolor<6)
-        $numalpha = 26;//出現する文字カードの種類($numalpha<27)
+        $numcolor = 2; //出現する色の種類($numcolor<6)
+        $numalpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";//出現する文字カードの種類($numalpha<27)    ABCDEFGHIJKLMNOPQRSTUVWXYZ
 
         $dasuflag=0;
         $lett="";
@@ -27,6 +27,7 @@ class UNOfController extends Controller
         $helpflag2=session('helpflag');
         $wildflag = 0;
         $wildflag2=session('wildflag');
+        $Bflag=0;
         $Nflag=0;
         $Nflagt=0;
         $Nflag2=session('nflag');
@@ -53,11 +54,11 @@ class UNOfController extends Controller
         $archiv = 0;
         $score1=0;
         $turn = session('turn');
-        if($turn===1){ 
-            $archive=[];
-        }else{ 
-            $archive = session('archive'); 
-        }
+//        if($turn===0){ 
+            $archive[]="";
+//        }else{ 
+//            $archive = session('archive'); 
+//        }
         $nimaime2 = session('nimaime');
         $nimaime3 = "";
         $gameend2 = session('gameend');
@@ -90,38 +91,93 @@ class UNOfController extends Controller
 //        echo $request->input('no') . " " . $request->input('id');
 
         if($request->input('status')==='next'){
+            echo "interval page";
+            $deck=session('deck');
+            $playCards=session('playCards');
+            $compCards=session('compCards');
+            $maeCards=session('maeCards');
+            $turn=session('turn');
+            $nimaime=session('nimaime');
+            $helpflag=session('helpflag');
+            $playscore=session('playscore');
+            $compscore=session('compscore');
+            $playwin=session('playwin');
+            $compwin=session('compwin');
+            session(['deck' => $deck]);
+            session(['playCards' => $playCards]);
+            session(['compCards' => $compCards]);
+            session(['maeCards' => $maeCards]);
+            session(['turn' => $turn]);
+            session(['nimaime' => $nimaime]);
+            session(['helpflag' => $helpflag]);
+            session(['playscore' => $playscore]);
+            session(['compscore' => $compscore]);
+            session(['playwin' => $playwin]);
+            session(['compwin' => $compwin]);
+            if(!($turn===0)){
+                session(['archive' => $archive]); 
+            }
+
+            $next=1;
+
+            return view('uno.index', [
+                'playCards'=> $playCards,
+                'compCards'=> $compCards,
+                'maeCard'=> $maeCards,
+                'turn'=> $turn,
+                'nimaime'=> $nimaime,
+                'helpflag'=> $helpflag,
+                'wildflag'=> $wildflag,
+                'Exhibit'=> $Exhibit,
+                'gameend'=> $gameend,
+                'next'=> $next,
+                'playscore'=> $playscore,
+                'compscore'=> $compscore,
+                'playlensc'=> $playlensc,
+                'complensc'=> $complensc,
+            ]
+        );
+
+    
         }elseif(
             $request->input('no')==='rule'){
             echo "ＵＮＯ<br><br>「色」または「数字」を揃えて「場」（ここでは「前カード」と称する）に置いていくゲームです。<br>
                 数字は０から" . $nummax . "まで存在します。また、文字カードが存在し、ｱﾙﾌｧﾍﾞｯﾄのAからZまで全て存在しています。<br>
-                現在、C,D,G,H,M,N,R,S,T,W,Xの１１種類のみ文字カードが制御されており、これら以外の文字カードを出しても効果は<br>
-                何もない状態になっています。<br><br>
+                現在、E,G,L以外の２３種類の文字カードが完璧に制御されており、これら以外の文字カードを出すとバグが発生する<br>
+                ことがある状態になっています。<br><br>
                 【 ２枚目のカードの出し方 】<br>
-                カードは通常１枚しか出せませんが、色が異なる場合でも、１９より小さい数字カードの「数字の１の位が等しい別のカード」を所持していた場合、<br>
+                カードは通常１枚しか出せませんが、色が異なる場合でも、19より小さい数字カードの「数字の1の位が等しい別のカード」を所持していた場合、<br>
                 それを出すことができます。「Joker, Nuisance, Gettopcard, Wild以外」の同じ文字の文字カードを2枚所持していた場合も、<br>
-                同様に出すことができます。出せる場合は「出しますか？」と聞いてくるので、「はい」「いいえ」を選んで決めてください。<br><br>
+                同様に出すことができます。出せる場合は「出しますか？」と聞いてくるので、「はい」「いいえ」を選んで決めてください。<br>
+                ただし、文字カードを2枚目に出した場合は、2枚目に出した文字カードの効果は、Draw two以外は発揮されません。<br>
+                また、Jokerを所持していれば、2枚目のカードが出せる状態であっても、出すことができなくなります。<br><br>
                 【 文字カードの効果 】<br>
-                ・・A：Annihilate =>  ランダムに指定されたプレイヤーの、数字カードまたは文字カードが全て消滅します。<br>
+                ・A：Annihilate =>  ランダムに指定されたプレイヤーの、数字カードまたは文字カードが全て消滅します。<br>
+                ・B：Barrior =>  相手から、「Punish, Yield」以外の文字カードで何らかの攻撃を受けた際に、それをバリアします。1度攻撃を防いだらBarriorは1枚消えます。<br>
                 ・C：thisCard all =>  出したthisCardallの色のカードが全て手札から消えます。<br>
-                ・D：Draw two =>  次のプレイヤーはデッキからカードを２枚引きます。<br>
-                ・・F：Force => 次のプレイヤーがHelpを所持していれば、そのHelpは全て消えます。<br>
-                ・G：Get top card => 場の一番上のカードを自分のものにできます。<br>
-                ・H：Help => Nuisanceを持っていない限り、色に関係なく好きなときに出せます。Helpを２枚出すと好きなカードを１枚捨てることができます。<br>
-                ・I：Impose => 次のプレイヤーにNuisanceを強制的に所持させ、押しつけることができます。すでに所持していた場合は２枚目を所持することになります。<br>
-                ・J：Joker => Jokerを所持している限り、ランダムに選ばれたカードが1枚、ランダムに変更されます。また、カード2枚で出すのが不可能となります。<br>Jokerを所持した状態で出せないカードを出そうとすると、1枚カードを引いた上で次のプレイヤーに移行します。従って1枚カードを引くだけのターンとなります。出せるカードか念入りに確認した上でカードを出すようにしてください。<br>Jokerを出した次のターンより、ランダムに変更されるのはなくなります。<br>
-                ・K：Keep => 勝ち上がるときの残り枚数が１増えます。例えば「３」だった場合、手札の残り枚数を３枚にすれば勝利となります。<br>
+                ・D：Draw two =>  次のプレイヤーはデッキからカードを2枚引きます。<br>
+                ・・E：Exhibit =>  次のプレイヤーのカードを1秒間、見ることができます。<br>
+                ・F：Force => 次のプレイヤーがHelpを所持していれば、そのHelpは全て消えます。<br>
+                ・・G：Get top card => 場の一番上のカードを自分のものにできます。<br>
+                ・H：Help => Nuisanceを持っていない限り、色に関係なく好きなときに出せます。Helpを2枚出すと好きなカードを1枚捨てることができます。<br>
+                ・I：Impose => 次のプレイヤーにNuisanceを強制的に所持させ、押しつけることができます。すでに所持していた場合は2枚目を所持することになります。<br>
+                ・J：Joker => Jokerを所持している限り、ランダムに選ばれたカードが1枚、ランダムに変更されます。また、カード2枚で出すのが不可能となります。<br>　　　　　　　Jokerを所持した状態で出せないカードを出そうとすると、1枚カードを引いた上で次のプレイヤーに移行します。従って1枚カードを引くだけのターンとなります。<br>　　　　　　　出せるカードか念入りに確認した上でカードを出すようにしてください。Jokerを出せた場合は、出した次のターンより、ランダムに変更されるのはなくなります。<br>　　　　　　　また、Jokerを所持した状態でoneMoretimeを出した場合、カードを１枚引く仕様を食らうのが相手のプレイヤーとなります。<br>
+                ・K：Keep => 勝ち上がるときの残り枚数が1増えます。例えば「3」だった場合、手札の残り枚数を3枚にすれば勝利となります。<br>
+                ・・L：Limit => 次のターンのプレイヤーは、2枚でカードを出すことしかできなくなります。1枚でしかカードが出せない場合は、カードを1枚引きます。<br>
                 ・M：one More time => もう1度あなたのターンです。<br>
-                ・・N：Nuisance => このカードを所持しているとHelpおよびWildを出すことができません。<br>
-                ・・O：O[オー] => 通常の文字カード得点以外に、９以下の数字カードの数字の和だけ、得点が加算されます。<br>
-                ・・P：Punish => 1枚カードを引き、Punishを出す前の前カードと数字や文字または色が等しければ手札が1枚になり、一致しなければ手札が3枚増えます。<br>
-                ・・Q：Quass => 全プレイヤー、手札の中からカードが２枚消えます。<br>
+                ・N：Nuisance => このカードを所持しているとHelpおよびWildを出すことができません。<br>
+                ・O：O[オー] => 通常の文字カード得点以外に、9以下の数字カードの数字の和だけ、得点が加算されます。<br>
+                ・P：Punish => あなたのカードの枚数が次のプレイヤーの半分の枚数の手札であれば、手札が3枚増えます。そうでなければ何も起きません。<br>
+                ・Q：Quast => 全プレイヤー、手札の中からカードが２枚消えます。<br>
                 ・R：Reverse => 2人でのプレイだと、もう一度あなたのターンとなります。<br>
                 ・S：Skip => 次のターンのプレイヤーを飛ばします。<br>
                 ・T：Two people skip => 次の2人分のプレイヤーのターンを飛ばします。<br>
-                ・・V：Vanish => aを任意の色とした時、次のプレイヤーがa色というthisCardallを所持していれば、あなたのa色のカードと次のプレイヤーのそのthisCardallが全て消えます。<br>
+                ・U：Ultimate => １枚引いたカードと前カードが、数字や文字および色が等しければ、残り手札が１枚になります。等しくなければ、手札が３枚増えます。<br>
+                ・V：Vanish => aを任意の色としたとき、次のプレイヤーがa色というthisCardallを所持していれば、あなたのa色のカードと次のプレイヤーのそのthisCardallが全て消えます。<br>
                 ・W：Wild => Nuisanceを持っていない限り、色に関係なく好きなときに出せます。次のターンのプレイヤーが出すカードの色を決めることができます。<br>
-                ・・X：Xchange => 出すと、手札の中身が全て変わります。出したあとの手札の枚数は変わりません。なお、変更されたあとの手札にXchangeがあれば、それを２枚目として出すことができます。<br>
-                ・・Z：Zero => 通常得点の" . $nummax . "点を獲得したあと、得点の最上位以外の数字が全て０になります。<br><br>
+                ・X：Xchange => 出すと、手札の中身が全て変わります。出したあとの手札の枚数は変わりません。なお、変更されたあとの手札にXchangeがあれば、それを2枚目として出すことができます。<br>
+                ・Y：Yield => 次のプレイヤーに、所持しているNuisanceとJokerを、全て譲渡します。<br>
+                ・Z：Zero => 通常得点の" . $nummax . "点を獲得したあと、得点の最上位以外の数字が全て0になります。<br><br>
                 【得点に関して】<br>
                 カードを出すと、出したカードに応じて以下の得点が与えられます。<br>
                 ・数字カード => その数字ぶんの点数<br>
@@ -137,11 +193,9 @@ class UNOfController extends Controller
                 $compCards = session('compCards');
                 $playJun = session('playJun');
                 $compJun = session('compJun');
-                //dd($playCards);
                 $deck = session('deck');
                 $maeCard = session('maeCards');
                 $cardarch = array('num' => ord(mb_substr($maeCard,-1,1)), 'color' =>  mb_substr($maeCard, 0, 1), 'display' => $maeCard); 
-                $Jarr = array('num' => array_shift($deck)['num'], 'color' =>  array_shift($deck)['color'], 'display' => array_shift($deck)['display']); 
                 
                 if($turn%2===0){
                     $archiv = sprintf('%03d', $turn) . " ";
@@ -167,29 +221,32 @@ class UNOfController extends Controller
                         if(mb_substr($value['display'],-1,1)==="N"){
                             $NflagT=1;
                         }
+                        if(mb_substr($value['display'],-1,1)==="B"){
+                            $Bflag=1;
+                        }
                     }
                     if($request->input('no')==='yes' || $request->input('no')==='non' || mb_substr($request->input('no'), 0, 1)==="w"){
                         echo "<br>";
                     }else{
                         if(sprintf('%02d',$playCards[$request->input('no')]['num'])===mb_substr($maeCard, -2, 2) ||
                         strcmp($playCards[$request->input('no')]['color'],mb_substr($maeCard, 0, 1))==0 ||
-                        strcmp(chr(813-($nummax-19)+$playCards[$request->input('no')]['num']),mb_substr($maeCard, -1, 1))==0 ||
+                        strcmp(mb_substr($playCards[$request->input('no')]['display'], -1, 1),mb_substr($maeCard, -1, 1))==0 ||
                         (($playCards[$request->input('no')]['num']===$nummax+8 || $playCards[$request->input('no')]['num']===$nummax+23)
-                        && $Nflag===0) || $helpflag2===1 || chr(813-($nummax-19)+$playCards[$request->input('no')]['num'])==="U"  ){
+                        && $Nflag===0) || $helpflag2===1 || mb_substr($playCards[$request->input('no')]['display'], -1, 1)==="U"  ){
                             echo "<br>";
                             if($helpflag2!==1){
-                                if($playCards[$request->input('no')]['num']>$nummax): 
-                                    $maeCard1 = "-".chr(813-($nummax-19)+$playCards[$request->input('no')]['num']);
-                                    else: $maeCard1 = sprintf('%02d',$playCards[$request->input('no')]['num']);
+                                if(mb_substr($playCards[$request->input('no')]['display'], -2, 1)==="-"): 
+                                    $maeCard1 = "-".mb_substr($playCards[$request->input('no')]['display'], -1, 1);
+                                    else: $maeCard1 = sprintf('%02d', intval(mb_substr($playCards[$request->input('no')]['display'], -2, 2)));
                                 endif;
                                 $gettop=array('num' => $playCards[$request->input('no')]['num'], 'color' =>  mb_substr($maeCard, 0, 1), 'display' => $maeCard);
                                 $gettop1=$maeCard;
                                 $getN=array('num' => $nummax + 14, 'color' =>  $rand3, 'display' => $rand3 . "-N");
                                 $cardarch=array($gettop, $cardarch);
-                                $playalpha=chr(813-($nummax-19)+$playCards[$request->input('no')]['num']);
+                                $playalpha=mb_substr($playCards[$request->input('no')]['display'], -1, 1);
                                 $cardcolor=$playCards[$request->input('no')]['color'];
                                 $maeCard=$playCards[$request->input('no')]['color'].$maeCard1;
-                                $archiv = $archiv . $maeCard;
+                                $archiv = $archiv . " " . $maeCard;
                                 echo "・・・";
                                 $cardU=array_shift($deck)['display'];
                                 if($playalpha!=="O"){ 
@@ -198,19 +255,17 @@ class UNOfController extends Controller
                                 if    ($playalpha==="A"){ 
                                     echo "Annihilate: Player" . $rand1 . "の" . $lett . "カードが全て消えました。"; 
                                     $Aflag=1;
-                                    foreach($compCards as $index=>$value){
-                                        if(mb_substr($value['display'],-1,1)==="B"){
-                                            unset($compCards[$index]);
-                                            $Aflag=0; 
-                                            echo "Barriorを所持していたため回避しました。所持していたBarriorは消えました。";
-                                        }
-                                    }
+                                }
+                                elseif($playalpha==="B"){
+                                    echo "Barrior: 前のプレイヤーから文字カードで何か攻撃を受けたときにそれを防御します。Barrior単独で出すと何も起きません。";
                                 }
                                 elseif($playalpha==="C"){
                                     foreach($playCards as $index => $value){ 
                                         if(($value['color'])===$cardcolor){ 
                                             unset($playCards[$index]); 
-                                            $ccount++; }}
+                                            $ccount++; 
+                                        }
+                                    }
                                     if($ccount!==0){ 
                                         echo "thisCard all: " . $cardcolor . "色のthisCard allを出しましたので、あなたの手札にある" . $cardcolor . "色のカード" . $ccount-1 . "枚が全て消えました。";
                                     }else{ 
@@ -228,17 +283,31 @@ class UNOfController extends Controller
                                             $compCards[]=array_shift($deck); 
                                             $compCards[]=array_shift($deck); 
                                             break; 
-                                        }} }
+                                        }
+                                    }
+                                }
                                 elseif($playalpha==="E"){ 
+                                    foreach($compCards as $index=>$value){ 
+                                        if(mb_substr($value['display'],-1,1)==="B"){
+                                            unset($compCards[$index]);
+                                            echo "Barriorを所持していたため回避しました。所持していたBarriorは消えました。"; 
+                                            break; 
+                                        }
+                                    }
                                     echo "Exhibit: 次のプレイヤーのカードを１秒間だけみることができます。";
                                     sleep(1); 
                                     foreach($compCards as $index=>$value){ 
-                                        echo $value['display']; 
+                                        echo $value['display'];
                                     }
-                                }
+                            }
                                 elseif($playalpha==="F"){ 
                                     echo "Force: あなたがHelpを所持していたので、Forceの効果により全て無くなりました。"; 
                                     foreach($compCards as $index=>$value){ 
+                                        if(mb_substr($value['display'],-1,1)==="B"){
+                                            unset($compCards[$index]);
+                                            echo "Barriorを所持していたため回避しました。所持していたBarriorは消えました。"; 
+                                            break; 
+                                        }
                                         if(mb_substr($value['display'],-1,1)==="H"){
                                             unset($compCards[$index]); 
                                         }
@@ -246,12 +315,19 @@ class UNOfController extends Controller
                                 }
                                 elseif($playalpha==="G"){ 
                                     echo "Get top card: このカードを出す前に前カードに置いてあったカードがあなたの手札に加わりました。";
-                                    $playCards[count($playCards)]=$gettop; /*dd($playCards);*/
+                                    $playCards[count($playCards)]=$gettop;
                                 }
                                 elseif($playalpha==="H"){ 
                                     echo "Help: もう1枚Helpを出すと1枚自由にカードを捨てられます。"; 
                                 }
                                 elseif($playalpha==="I"){ 
+                                    foreach($compCards as $index=>$value){ 
+                                        if(mb_substr($value['display'],-1,1)==="B"){
+                                            unset($compCards[$index]);
+                                            echo "Barriorを所持していたため回避しました。所持していたBarriorは消えました。"; 
+                                            break; 
+                                        }
+                                    }
                                     echo "Impose: 前のプレイヤーさんからNuisanceが押しつけられました。";
                                     if($Nflagt===0){
                                         $compCards[count($compCards)+1]=$getN;
@@ -265,6 +341,13 @@ class UNOfController extends Controller
                                     }
                                 }
                                 elseif($playalpha==="L"){ 
+                                    foreach($compCards as $index=>$value){ 
+                                        if(mb_substr($value['display'],-1,1)==="B"){
+                                            unset($compCards[$index]);
+                                            echo "Barriorを所持していたため回避しました。所持していたBarriorは消えました。"; 
+                                            break; 
+                                        }
+                                    }
                                     echo "Limit : あなたは、「ルール上２枚出せるカード」しか出すことができなくなります。１枚でカードを出そうとしても、出せません。"; 
                                 }
                                 elseif($playalpha==="K"){ 
@@ -282,14 +365,13 @@ class UNOfController extends Controller
                                     echo "O[オー] : 通常の" . $nummax+1 . "点に加え、ターン開始時の手札の、９以下の数字カードの数字ぶん(" . $onum . "点)、得点が加算されました。";
                                 }
                                 elseif($playalpha==="P"){ 
-                                    echo "Punish : 前のプレイヤーの手札の枚数が、あなたの手札の枚数の半分";
                                     if((count($compCards)*2)<=count($playCards)){ 
-                                        echo "だったので、手札が３枚増えます。"; 
+                                        echo "Punish : 前のプレイヤーの手札の枚数が、あなたの手札の枚数の半分だったので、手札が３枚増えます。"; 
                                         $playCards[]=array_shift($deck); 
                                         $playCards[]=array_shift($deck); 
                                         $playCards[]=array_shift($deck);
                                     }else{
-                                        echo "ではなかったので、何も起きませんでした。";
+                                        echo "前のプレイヤーの手札の枚数が、あなたの手札の枚数の半分ではなかったので、何も起きませんでした。";
                                     }
                                 }
                                 elseif($playalpha==="Q"){ 
@@ -315,7 +397,7 @@ class UNOfController extends Controller
                                     $turn++; 
                                 }
                                 elseif($playalpha==="U"){ 
-                                    echo "Ultimate : １枚、カードをランダムに引いた「" . $cardU . "」が、Punishを出す前のカード「" . $gettop['display'] . "」に文字または数字が一致"; 
+                                    echo "Ultimate : １枚、カードをランダムに引いた「" . $cardU . "」が、Ultimateを出す前のカード「" . $gettop['display'] . "」に文字または数字が一致"; 
                                     if(mb_substr($cardU,-1,2)===mb_substr($gettop['display'],-1,2)){
                                         echo "したので、手札が１枚になります。"; 
                                         $playCards=[]; 
@@ -328,13 +410,18 @@ class UNOfController extends Controller
                                     }
                                 }
                                 elseif($playalpha==="V"){ 
-                                    echo "Vanish : "; 
-                                    foreach($compCards as $index=>$value){ 
+                                    foreach($compCards as $index=>$value){
                                         if(mb_substr($value['display'],-1,1)==="C"){ 
-                                            $vc=$value['color']; unset($compCards[$index]); 
-                                            break;
+                                            if($Bflag===1){
+                                                unset($compCards[$index]);
+                                                echo "Barriorを所持していたため回避しました。所持していたBarriorは消えました。"; 
+                                            }else{
+                                                $vc=$value['color']; 
+                                                unset($compCards[$index]); 
+                                                break;
+                                            }
                                         }else{
-                                            echo "次のプレイヤーはthisCardallを所持していませんでした。"; 
+                                            echo "Vanish : 次のプレイヤーはthisCardallを所持していませんでした。"; 
                                             $vc=0; 
                                             break;
                                         }
@@ -361,7 +448,7 @@ class UNOfController extends Controller
                                 elseif($playalpha==="Y"){ 
                                     echo "Yield : 前のプレイヤーがNuisanceとJokerを所持して"; 
                                     if($Nflag===1 || $Jflag===1){ 
-                                        echo "いるため、全て次のプレイヤーに譲渡します。";
+                                        echo "いるため、全て譲渡されました。";
                                         foreach($playCards as $index => $value){
                                             if(mb_substr($value['display'],-1,1)==="N"){
                                                 $compCards[]=$playCards[$index];
@@ -375,9 +462,13 @@ class UNOfController extends Controller
                                     }
                                 }
                                 elseif($playalpha==="Z"){ 
-                                    echo "Zero : あなたの得点の最上位以外が０になります。"; 
+                                    echo "Zero : 前のプレイヤーの得点の最上位以外が０になりました。"; 
                                     $Zflag=1; 
                                 }
+                            }
+                            if(count($playCards)===$playwin){ //thisCardallで勝利する場合
+                                $gameend=1;
+                                goto gameend;
                             }
                             unset($playCards[$request->input('no')]);
                             $playCards = array_values($playCards);
@@ -409,16 +500,15 @@ class UNOfController extends Controller
                         $playdis[]=$value['display']; 
                     }
                     if(mb_substr($maeCard, -2, 1)==='-'){ 
-                        $nimai="/[青赤黄緑]" . '-' . mb_substr($maeCard, -1, 1) . "/"; 
+                        $nimai="/[青赤黄緑紫]" . '-' . mb_substr($maeCard, -1, 1) . "/"; 
                     }else{  
-                        $nimai="/[青赤黄緑][01]" . mb_substr($maeCard, -1, 1) . "/"; 
+                        $nimai="/[青赤黄緑紫][01]" . mb_substr($maeCard, -1, 1) . "/"; 
                     }
                     $nimai=preg_grep($nimai, $playdis);
                     if($dasuflag===0){
                         if($request->input('no')==='yes'){
-                            echo intval(mb_substr($nimaime2,0,2));
-                            if($playCards[intval(mb_substr($nimaime2,0,2))]['num']>$nummax):
-                                $maeCard1 = "-".chr(813-($nummax-19)+$playCards[intval(mb_substr($nimaime2,0,2))]['num']);
+                            if(mb_substr($nimaime2,-2,1)==="-"):
+                                $maeCard1 = "-".mb_substr($nimaime2,-1,1);
                                 else: $maeCard1 = sprintf('%02d',$playCards[intval(mb_substr($nimaime2,0,2))]['num']);
                             endif;
                             $maeCard = $playCards[intval(mb_substr($nimaime2,0,2))]['color'].$maeCard1;
@@ -469,7 +559,8 @@ class UNOfController extends Controller
                     }
                     if($dasuflag!==1){
                         if(!($dasuflag!==1 && $nimaime!==0 ) || $request->input('no')==='non'){
-                            $turn++;  //次のターンへ
+                            $turn++; 
+                            $next=1; //次のターンへ
                         }
                     }
                     if(!($maeCard1) && $Jflag===0){
@@ -502,6 +593,7 @@ class UNOfController extends Controller
                         $playscore=$playscore+200; 
                     }
                     $archiv = $archiv . " " . $playscore;
+                    $archive= $archiv;
                 }else{ //PLAYER2
                     $archiv = sprintf('%03d', $turn);
                     foreach($compCards as $index => $value){
@@ -527,18 +619,18 @@ class UNOfController extends Controller
                     }else{
                         if(sprintf('%02d',$compCards[$request->input('no')]['num'])===mb_substr($maeCard, -2, 2) ||
                         strcmp($compCards[$request->input('no')]['color'],mb_substr($maeCard, 0, 1))==0 ||
-                        strcmp(chr(813-($nummax-19)+$compCards[$request->input('no')]['num']),mb_substr($maeCard, -1, 1))==0 ||
+                        strcmp(mb_substr($compCards[$request->input('no')]['display'], -1, 1),mb_substr($maeCard, -1, 1))==0 ||
                         (($compCards[$request->input('no')]['num']===$nummax+8 || $compCards[$request->input('no')]['num']===$nummax+23)
-                        && $Nflag===0) || $helpflag2===1 || chr(813-($nummax-19)+$compCards[$request->input('no')]['num'])==="O"  ){
+                        && $Nflag===0) || $helpflag2===1 || mb_substr($compCards[$request->input('no')]['display'], -1, 1)==="O"  ){
                             echo "<br>";
                             if($helpflag2!==1){
-                                if($compCards[$request->input('no')]['num']>$nummax): 
-                                    $maeCard1 = "-".chr(813-($nummax-19)+$compCards[$request->input('no')]['num']);
-                                    else: $maeCard1 = sprintf('%02d',$compCards[$request->input('no')]['num']);
+                                if(mb_substr($compCards[$request->input('no')]['display'], -2, 1)==="-"): 
+                                    $maeCard1 = "-".mb_substr($compCards[$request->input('no')]['display'], -1, 1);
+                                    else: $maeCard1 = sprintf('%02d', intval(mb_substr($compCards[$request->input('no')]['display'], -2, 2)));
                                 endif;
                                 $gettop=array('num' => $compCards[$request->input('no')]['num'], 'color' =>  mb_substr($maeCard, 0, 1), 'display' => $maeCard);
                                 $getN=array('num' => $nummax + 14, 'color' =>  $rand3, 'display' => $rand3 . "-N");
-                                $compalpha=chr(813-($nummax-19)+$compCards[$request->input('no')]['num']);
+                                $compalpha=mb_substr($compCards[$request->input('no')]['display'], -1, 1);
                                 $cardcolor=$compCards[$request->input('no')]['color'];
                                 $maeCard=$compCards[$request->input('no')]['color'].$maeCard1;
                                 $archiv = $archiv . " " . $maeCard;
@@ -550,6 +642,9 @@ class UNOfController extends Controller
                                 if    ($compalpha==="A"){
                                     echo "Annihilate: Player" . $rand1 . "の" . $lett . "カードが全て消えました。"; 
                                     $Aflag=1; 
+                                }
+                                elseif($compalpha==="B"){
+                                    echo "Barrior: 前のプレイヤーから文字カードで何か攻撃を受けたときにそれを防御します。Barrior単独で出すと何も起きません。";
                                 }
                                 elseif($compalpha==="C"){
                                     foreach($compCards as $index => $value){ 
@@ -719,6 +814,11 @@ class UNOfController extends Controller
                                 elseif($compalpha==="Z"){ echo "Zero : あなたの得点の最上位以外が０になります。"; $Zflag=1; }
                                 if($turn%2===1 && mb_substr($maeCard,-1,1)==="L"){ $maeCard=$gettop; echo "Limitによる制限の影響でそのカードは出せません。"; }
                             }
+                            if(count($compCards)===$compwin){ //thisCardallで勝利する場合
+                                $gameend=1;
+                                goto gameend;
+                            }
+                            $archiv=$archiv . " " . $compCards[$request->input('no')]['display'];
                             unset($compCards[$request->input('no')]);
                             $compCards = array_values($compCards);
                             if($Xchange===1){
@@ -761,11 +861,11 @@ class UNOfController extends Controller
                     $nimai=preg_grep($nimai, $compdis);
                     if($dasuflag===0){
                         if($request->input('no')==='yes'){
-                            if($compCards[intval(mb_substr($nimaime2,0,2))]['num']>$nummax):
-                                $maeCard1 = "-".chr(813-($nummax-19)+$compCards[intval(mb_substr($nimaime2,0,2))]['num']);
+                            if(mb_substr($nimaime2,-2,1)==="-"):
+                                $maeCard1 = "-".mb_substr($nimaime2,-1,1);
                                 else: $maeCard1 = sprintf('%02d',$compCards[intval(mb_substr($nimaime2,0,2))]['num']);
                             endif;
-                            $maeCard = $playCards[intval(mb_substr($nimaime2,0,2))]['color'].$maeCard1;
+                            $maeCard = $compCards[intval(mb_substr($nimaime2,0,2))]['color'].$maeCard1;
                             $archiv = $archiv . " " . $maeCard;
                             unset($compCards[intval(mb_substr($nimaime2,0,2))]);
                             $compCards = array_values($compCards);
@@ -817,6 +917,7 @@ class UNOfController extends Controller
                     if($dasuflag!==1){
                         if(!($dasuflag!==1 && $nimaime!==0 ) || $request->input('no')==='non'){
                             $turn++;  //次のターンへ
+                            $next=1;
                         }else{
                             echo " ";
                         } 
@@ -853,44 +954,45 @@ class UNOfController extends Controller
                 }
                 $archiv = $archiv . " " . $compscore;
                 if($Aflag===1){
-                    echo $rand1 . " " . $lett;
+                    foreach($playCards as $index => $value){ 
+                        $playdis[]=$value['display']; 
+                    }
+                    foreach($compCards as $index => $value){ 
+                        $compdis[]=$value['display']; 
+                    }
                     if    ($rand1===1){
                         if($lett==="数字"){ 
                             foreach($playdis as $index => $value){ 
-                                echo mb_substr($value,1,1); 
                                 if(mb_substr($value,1,1)!=="-"){ 
-                                    echo $value; 
                                     unset($playCards[$index]); 
                                 }
                             }
                         }
                         elseif($lett==="文字"){ 
                             foreach($playdis as $index => $value){ 
-                                echo mb_substr($value,1,1); 
                                 if(mb_substr($value,1,1)==="-"){ 
-                                    echo $value; unset($playCards[$index]);
+                                    unset($playCards[$index]);
                                 }
                             }
                         }
                         $playCards = array_values($playCards);
                     }
-                    elseif($rand1===2){if($lett==="数字"){ 
-                        foreach($compdis as $index => $value){ 
-                            if(mb_substr($value,1,1)!=="-"){ 
-                                echo $value; 
-                                unset($compCards[$index]);
+                    elseif($rand1===2){
+                        if($lett==="数字"){ 
+                            foreach($compdis as $index => $value){ 
+                                if(mb_substr($value,1,1)!=="-"){ 
+                                    unset($compCards[$index]);
+                                }
                             }
                         }
-                    }
-                    elseif($lett==="文字"){ 
-                        foreach($compdis as $index => $value){ 
-                            if(mb_substr($value,1,1)==="-"){ 
-                                echo $value; 
-                                unset($compCards[$index]); 
+                        elseif($lett==="文字"){ 
+                            foreach($compdis as $index => $value){ 
+                                if(mb_substr($value,1,1)==="-"){ 
+                                    unset($compCards[$index]); 
+                                }
                             }
                         }
-                    }
-                    $compCards = array_values($compCards);
+                        $compCards = array_values($compCards);
                     }
                 }
                 if(!$nimaime || ($nimaime && $request->input('no')==='non')){
@@ -899,12 +1001,11 @@ class UNOfController extends Controller
                     if(session('turn')%2===0){ 
                         echo "turn: " . $turn . "  【Player " . ($turn%2)+1 . "】<br><br>"; }
                 }
-
-                //dd($playCards);
+                //$archive[]=$archiv;
             }else{
                 if(session('turn')%2===0 && $request->input('no')==='draw'){
                     $turn = session('turn');
-                    $deck=$this->init_cards($nummax,$numcolor);
+                    $deck=$this->init_cards($nummax,$numcolor,$numalpha);
                     $playCards = session('playCards',session()->all());
                     $playCards[]=array_shift($deck);
                     $compCards = session('compCards',session()->all());
@@ -915,7 +1016,7 @@ class UNOfController extends Controller
                     echo "turn: " . $turn . "  【Player " . (($turn)%2)+1 . "】<br><br>";
                 }elseif(session('turn')%2===1 && $request->input('no')==='draw'){
                     $turn = session('turn');
-                    $deck=$this->init_cards($nummax,$numcolor);
+                    $deck=$this->init_cards($nummax,$numcolor, $numcolor);
                     $playCards = session('playCards',session()->all());
                     $compCards = session('compCards',session()->all());
                     $compCards[]=array_shift($deck);
@@ -928,15 +1029,12 @@ class UNOfController extends Controller
                     $turn = 0;
                     $w = 0;
                     session()->flush();
-                    $deck=$this->init_cards($nummax,$numcolor);
+                    $deck=$this->init_cards($nummax,$numcolor, $numalpha);
                     for($d=0;$d<$maisu;$d++){
                         $playCards[]=array_shift($deck);
                         $compCards[]=array_shift($deck);
                     }
-                    for($d=0;$d<$maisuJ;$d++){
-                        $playJun[]=array_shift($deck);
-                        $compJun[]=array_shift($deck);
-                    }
+
                     $mae=array_shift($deck);
                     $maeCard=$mae['display'];
                     $archive[]="初:" . $maeCard;
@@ -955,10 +1053,11 @@ class UNOfController extends Controller
             if(count($compCards) <= $compwin){
                 $gameend=1; 
             }
-
+gameend:
             if($gameend===1){
                 echo "Player" . ($turn%2) . "の勝利です。おめでとうございます。" ;
             }
+            var_dump($archive); echo "<br>";
 
             session(['deck' => $deck]);
             session(['playCards' => $playCards]);
@@ -971,7 +1070,10 @@ class UNOfController extends Controller
             session(['compscore' => $compscore]);
             session(['playwin' => $playwin]);
             session(['compwin' => $compwin]);
+//            session(['archive' => $archive]);
+            echo $turn;
             if(!($turn===0)){session(['archive' => $archive]); }
+
         return view('uno.index', [
             'playCards'=> $playCards,
             'compCards'=> $compCards,
@@ -993,33 +1095,9 @@ class UNOfController extends Controller
         }
     }
     public function next(){
-        echo "interval page";
-        $deck=session('deck');
-        $playCards=session('playCards');
-        $compCards=session('compCards');
-        $maeCards=session('maeCards');
-        $turn=session('turn');
-        $nimaime=session('nimaime');
-        $helpflag=session('helpflag');
-        $playscore=session('playscore');
-        $compscore=session('compscore');
-        $playwin=session('playwin');
-        $compwin=session('compwin');
-        session(['deck' => $deck]);
-        session(['playCards' => $playCards]);
-        session(['compCards' => $compCards]);
-        session(['maeCards' => $maeCards]);
-        session(['turn' => $turn]);
-        session(['nimaime' => $nimaime]);
-        session(['helpflag' => $helpflag]);
-        session(['playscore' => $playscore]);
-        session(['compscore' => $compscore]);
-        session(['playwin' => $playwin]);
-        session(['compwin' => $compwin]);
-        if(!($turn===0)){session(['archive' => $archive]); }
-}
+    }
 
-    private function init_cards($nummax,$numcolor){
+    private function init_cards($nummax,$numcolor,$numalpha){
         $decks = [];
         $colors = ["赤","青"];
         if($numcolor>2){
@@ -1032,9 +1110,9 @@ class UNOfController extends Controller
             $colors[]="紫";
         }
         foreach($colors as $color){
-            for($i=0;$i<=$nummax+$numalpha;$i++){
+            for($i=0;$i<=$nummax+mb_strlen($numalpha);$i++){
                 if($i>$nummax){
-                    $display = $color . '-' . chr(813-($nummax-19)+$i);
+                    $display = $color . '-' . mb_substr($numalpha,$i-$nummax-1,1);
                 }else{
                     $display = $color . sprintf('%02d',$i);
                 }
